@@ -1,0 +1,6 @@
+@TuBarberiaAPI_HostAddress = http://localhost:5176
+
+GET {{TuBarberiaAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
