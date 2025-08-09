@@ -107,5 +107,24 @@ namespace TuBarberiaAPI.Controllers
             return Ok(new { message = "Perfil actualizado correctamente." });
         }
 
+        [HttpGet("me")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var userIdClaim = User.FindFirst("id")?.Value;
+            if (userIdClaim == null)
+                return Unauthorized();
+        
+            var userId = int.Parse(userIdClaim);
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                return NotFound();
+        
+            return Ok(new {
+                fullName = user.FullName,
+                email = user.Email,
+                phoneNumber = user.PhoneNumber
+            });
+        }
+
     }
 }
