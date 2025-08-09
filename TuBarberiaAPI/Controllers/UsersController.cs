@@ -87,5 +87,25 @@ namespace TuBarberiaAPI.Controllers
             return Ok(barberos);
         }
 
+        [HttpPut("me")]
+        public async Task<IActionResult> UpdateCurrentUser([FromBody] UserUpdateDto dto)
+        {
+            var userIdClaim = User.FindFirst("id")?.Value;
+            if (userIdClaim == null)
+                return Unauthorized();
+        
+            var userId = int.Parse(userIdClaim);
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                return NotFound();
+        
+            user.FullName = dto.FullName ?? user.FullName;
+            user.Email = dto.Email ?? user.Email;
+            user.PhoneNumber = dto.PhoneNumber ?? user.PhoneNumber;
+        
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Perfil actualizado correctamente." });
+        }
+
     }
 }
