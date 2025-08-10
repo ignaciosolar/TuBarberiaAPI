@@ -398,31 +398,5 @@ namespace TuBarberiaAPI.Controllers
 
             return Ok(grouped);
         }
-
-    [HttpPost("bulk")]
-    public async Task<IActionResult> UpsertBulk([FromBody] BulkBarberScheduleDto body) {
-      // body: { barberId: int, schedules: List<BarberScheduleDto> }
-      var barberId = body.BarberId;
-    
-      // Borra tramos actuales del barbero
-      var current = _context.BarberSchedules.Where(s => s.BarberId == barberId);
-      _context.BarberSchedules.RemoveRange(current);
-    
-      // Inserta nuevos
-      var toAdd = body.Schedules.Select(dto => new BarberSchedule {
-        BarberId = barberId,
-        DayOfWeek = (DayOfWeek)dto.DayOfWeek,
-        StartTime = dto.StartTime, // si viene "09:00:00" como TimeSpan; si viene "09:00" parsea
-        EndTime   = dto.EndTime
-      }).ToList();
-    
-      _context.BarberSchedules.AddRange(toAdd);
-      await _context.SaveChangesAsync();
-      return Ok(new { message = "Disponibilidad actualizada." });
-    }
-
-
-
-    
     }
 }

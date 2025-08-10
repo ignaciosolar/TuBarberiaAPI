@@ -101,7 +101,7 @@ namespace TuBarberiaAPI.Controllers
         
             user.FullName = dto.FullName ?? user.FullName;
             user.Email = dto.Email ?? user.Email;
-            user.PhoneNumber = dto.PhoneNumber ?? user.PhoneNumber;
+            user.Phone = dto.PhoneNumber ?? user.Phone; // <--- Cambiado aquí
         
             await _context.SaveChangesAsync();
             return Ok(new { message = "Perfil actualizado correctamente." });
@@ -122,7 +122,7 @@ namespace TuBarberiaAPI.Controllers
             return Ok(new {
                 fullName = user.FullName,
                 email = user.Email,
-                phoneNumber = user.PhoneNumber
+                phoneNumber = user.Phone // <--- Cambiado aquí
             });
         }
 
