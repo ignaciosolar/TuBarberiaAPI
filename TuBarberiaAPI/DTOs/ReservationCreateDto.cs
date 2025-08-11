@@ -7,7 +7,7 @@
 
         public string ClientName { get; set; } = string.Empty;
         public string ClientPhone { get; set; } = string.Empty;
-
+        public string ClientEmail { get; set; } = string.Empty;
         public DateTime StartTime { get; set; }
     }
 }

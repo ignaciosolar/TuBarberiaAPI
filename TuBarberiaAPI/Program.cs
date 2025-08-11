@@ -7,14 +7,27 @@ using TuBarberiaAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//  Conexión a SQL Server
+// 🟢 Conexión a SQL Server con resiliencia y timeout
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sql =>
+        {
+            sql.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null
+            );
+            sql.CommandTimeout(120); // segundos
+        }
+    )
+);
 
-//  Servicio para JWT
+// Servicios
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<EmailService>();
 
-//  CORS para permitir llamadas desde Angular
+// 🟢 CORS: orígenes fijos + dominios dinámicos (ej. ngrok)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
@@ -24,12 +37,22 @@ builder.Services.AddCors(options =>
                 "https://brilliant-travesseiro-dddd27.netlify.app",
                 "https://calm-coast-04658b71e.1.azurestaticapps.net"
             )
+            .SetIsOriginAllowed(origin =>
+            {
+                // Permite *.ngrok-free.app y *.ngrok.io si los usas
+                try
+                {
+                    var host = new Uri(origin).Host;
+                    return host.EndsWith(".ngrok-free.app") || host.EndsWith(".ngrok.io");
+                }
+                catch { return false; }
+            })
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
-//  Autenticación con JWT
+// Auth JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -44,14 +67,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// 👉 Servicios básicos
+// MVC + Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-//  Middleware
+// Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -59,12 +82,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAngularApp");
-
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

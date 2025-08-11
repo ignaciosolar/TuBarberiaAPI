@@ -50,6 +50,7 @@ namespace TuBarberiaAPI.Controllers
                 BarberServiceId = dto.BarberServiceId,
                 ClientName = dto.ClientName,
                 ClientPhone = dto.ClientPhone,
+                ClientEmail = dto.ClientEmail, // <-- Asigna aquí
                 StartTime = dto.StartTime,
                 EndTime = endTime,
                 Status = "Activa"
@@ -334,6 +335,7 @@ namespace TuBarberiaAPI.Controllers
                 BarberServiceId = dto.BarberServiceId,
                 ClientName = dto.ClientName.Trim(),
                 ClientPhone = dto.ClientPhone.Trim(),
+                ClientEmail = dto.ClientEmail, // <-- Asigna aquí
                 StartTime = dto.StartTime,
                 EndTime = endTime,
                 Status = "Activa"
