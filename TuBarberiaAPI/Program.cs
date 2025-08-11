@@ -7,39 +7,28 @@ using TuBarberiaAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🟢 Conexión a SQL Server con resiliencia y timeout
+// ▶ DB sencilla (sin wake-up/retentativas/timeout extra)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        sql =>
-        {
-            sql.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorNumbersToAdd: null
-            );
-            sql.CommandTimeout(120); // segundos
-        }
-    )
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
 // Servicios
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<EmailService>();
 
-// 🟢 CORS: orígenes fijos + dominios dinámicos (ej. ngrok)
+// ▶ CORS: orígenes permitidos (sin credenciales)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
-    {
-        policy.WithOrigins(
+        policy
+            .WithOrigins(
                 "http://localhost:4200",
                 "https://brilliant-travesseiro-dddd27.netlify.app",
                 "https://calm-coast-04658b71e.1.azurestaticapps.net"
             )
+            // Permite túneles de dev si los usas (ngrok)
             .SetIsOriginAllowed(origin =>
             {
-                // Permite *.ngrok-free.app y *.ngrok.io si los usas
                 try
                 {
                     var host = new Uri(origin).Host;
@@ -49,11 +38,10 @@ builder.Services.AddCors(options =>
             })
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials(); // 🟢 Añadido para permitir cookies y headers de autorización
-    });
+    );
 });
 
-// Auth JWT
+// ▶ Auth JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -75,17 +63,17 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Middleware
+// ▶ Pipeline (orden importa)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// 🟢 IMPORTANTE: Orden correcto del middleware - CORS debe ir PRIMERO
-app.UseCors("AllowAngularApp");
 app.UseHttpsRedirection();
+app.UseCors("AllowAngularApp");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();
