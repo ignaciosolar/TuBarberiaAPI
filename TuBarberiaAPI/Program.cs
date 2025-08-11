@@ -48,7 +48,8 @@ builder.Services.AddCors(options =>
                 catch { return false; }
             })
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials(); // 🟢 Añadido para permitir cookies y headers de autorización
     });
 });
 
@@ -81,6 +82,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// 🟢 IMPORTANTE: Orden correcto del middleware - CORS debe ir PRIMERO
 app.UseCors("AllowAngularApp");
 app.UseHttpsRedirection();
 app.UseAuthentication();
