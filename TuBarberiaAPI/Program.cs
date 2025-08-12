@@ -7,7 +7,7 @@ using TuBarberiaAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ▶ DB sencilla (sin wake-up/retentativas/timeout extra)
+// DB
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
@@ -16,32 +16,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<EmailService>();
 
-// ▶ CORS: orígenes permitidos (sin credenciales)
+// CORS (simple, sin credenciales)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
         policy
-            .WithOrigins(
-                "http://localhost:4200",
-                "https://brilliant-travesseiro-dddd27.netlify.app",
-                "https://calm-coast-04658b71e.1.azurestaticapps.net"
-            )
-            // Permite túneles de dev si los usas (ngrok)
-            .SetIsOriginAllowed(origin =>
-            {
-                try
-                {
-                    var host = new Uri(origin).Host;
-                    return host.EndsWith(".ngrok-free.app") || host.EndsWith(".ngrok.io");
-                }
-                catch { return false; }
-            })
+            .WithOrigins( "https://calm-coast-04658b71e.1.azurestaticapps.net")
             .AllowAnyHeader()
             .AllowAnyMethod()
     );
 });
 
-// ▶ Auth JWT
+// JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -63,7 +49,6 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// ▶ Pipeline (orden importa)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
