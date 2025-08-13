@@ -16,18 +16,22 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<EmailService>();
 
-// CORS (simple, sin credenciales)
+// CORS (orígenes exactos; sin credenciales)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularApp", policy =>
         policy
-            .WithOrigins( "https://calm-coast-04658b71e.1.azurestaticapps.net")
+            .WithOrigins(
+                "http://localhost:4200",
+                "https://brilliant-travesseiro-dddd27.netlify.app",
+                "https://calm-coast-04658b71e.1.azurestaticapps.net"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
     );
 });
 
-// JWT
+// Auth JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -42,7 +46,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// MVC + Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -56,7 +59,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAngularApp");
+app.UseRouting();                  // 👈 necesario con endpoint routing
+app.UseCors("AllowAngularApp");    // 👈 CORS entre routing y auth
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -1,4 +1,4 @@
-﻿using BCrypt.Net;
+﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TuBarberiaAPI.Data;
@@ -10,6 +10,7 @@ namespace TuBarberiaAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [EnableCors("AllowAngularApp")] // 👈 aplica la policy al controller completo
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -21,15 +22,16 @@ namespace TuBarberiaAPI.Controllers
             _jwtService = jwtService;
         }
 
-        // LOGIN
+        // 👇 Maneja preflight explícito
+        [HttpOptions("login")]
+        public IActionResult OptionsLogin() => NoContent();
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             var normalizedEmail = dto.Email.Trim().ToLower();
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
-
-            if (user == null)
-                return Unauthorized(new { message = "Usuario no encontrado" });
+            if (user == null) return Unauthorized(new { message = "Usuario no encontrado" });
 
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 return Unauthorized(new { message = "Contraseña incorrecta" });
@@ -51,18 +53,19 @@ namespace TuBarberiaAPI.Controllers
             });
         }
 
-        // REGISTRO
+        // (opcional) también para register:
+        [HttpOptions("register")]
+        public IActionResult OptionsRegister() => NoContent();
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
         {
             var normalizedEmail = dto.Email.Trim().ToLower();
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == normalizedEmail);
-            if (existingUser != null)
-                return BadRequest(new { message = "El correo ya está registrado." });
+            if (existingUser != null) return BadRequest(new { message = "El correo ya está registrado." });
 
             var barberShop = await _context.BarberShops.FindAsync(dto.BarberShopId);
-            if (barberShop == null)
-                return BadRequest(new { message = "La barbería no existe." });
+            if (barberShop == null) return BadRequest(new { message = "La barbería no existe." });
 
             var user = new User
             {
