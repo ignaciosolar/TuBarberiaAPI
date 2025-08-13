@@ -12,7 +12,7 @@ namespace TuBarberiaAPI.Services
         private readonly string _smtpUser = "reserbyte@gmail.com";
         private readonly string _smtpPass = Environment.GetEnvironmentVariable("EMAIL_SMTP_PASS")!;
 
-        public async Task SendEmailAsync(string to, string subject, string body, bool isHtml = false)
+        public async Task SendEmailAsync(string to, string subject, string body, bool isHtml = true)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("TuBarberia", _smtpUser));
