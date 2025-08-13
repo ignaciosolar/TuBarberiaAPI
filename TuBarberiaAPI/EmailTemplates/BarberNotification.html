@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Reserva - TuBarbería</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .card {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .brand {
+            text-align: center;
+            border-bottom: 2px solid #70BD95;
+            padding-bottom: 8px;
+        }
+
+            .brand h2 {
+                margin: 8px 0 0;
+                color: #002439;
+            }
+
+        .row {
+            margin: 16px 0;
+            font-size: 15px;
+        }
+
+            .row p {
+                margin: 6px 0;
+            }
+
+        .hl {
+            color: #0059CE;
+            font-weight: 700;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 18px;
+            background: #e53935;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="brand">
+            <img src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="TuBarbería" height="46">
+            <h2>¡Nueva Reserva!</h2>
+        </div>
+
+        <div class="row">
+            <p><strong>Barbero:</strong> {{Barbero}}</p>
+            <p><strong>Barbería:</strong> {{Barberia}}</p>
+            <p><strong>Cliente:</strong> {{Cliente}}</p>
+            <p><strong>Servicio:</strong> {{Servicio}}</p>
+        </div>
+
+        <div class="row">
+            <p><strong>Fecha:</strong> <span class="hl">{{DiaSemana}} {{Fecha}}</span> ({{Relativo}})</p>
+            <p><strong>Hora:</strong> <span class="hl">{{Hora}}</span></p>
+        </div>
+
+        <div class="row">
+            <p>Si necesitas anular esta hora:</p>
+            <a class="btn" href="{{CancelUrl}}">Anular Reserva</a>
+        </div>
+
+        <p class="muted">© {{Anio}} TuBarbería — Mensaje automático, no responder.</p>
+    </div>
+</body>
+</html>
